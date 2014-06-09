@@ -1,6 +1,6 @@
 # enrich
 
-*Enrich your Stormpath User accounts with juicy data!*
+*Enrich your Stormpath User accounts, instantly!*
 
 
 ## Purpose
