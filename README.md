@@ -3,6 +3,9 @@
 *Enrich your Stormpath User accounts, instantly!*
 
 
+![Bonsai Sketch][]
+
+
 ## Purpose
 
 If you use [Stormpath][] to store and manage your user accounts,
@@ -95,6 +98,7 @@ latest information possible, and you'll continuously have an up-to-date
 directory of users!
 
 
+  [Bonsai Sketch]: https://github.com/rdegges/stormpath-enrich/raw/master/assets/bonsai-sketch.jpg "Bonsai Sketch"
   [Stormpath]: https://stormpath.com/ "Stormpath"
   [FullContact]: http://www.fullcontact.com/ "FullContact"
   [here]: https://api.stormpath.com/register "Create a Stormpath Account"
