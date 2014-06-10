@@ -21,10 +21,6 @@ var CONFIG = {
   stormpath_api_key_secret: null,
   fullcontact_api_key : null,
 };
-var rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
 var fc;
 var spClient;
 
@@ -45,6 +41,11 @@ program
  */
 function configure() {
 
+  var rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
   // The ~/.enrich directory path (absolute).
   var dir = HOME + '/.stormpath/enrich';
 
@@ -57,7 +58,6 @@ function configure() {
   });
 
   async.series([
-    // Read credentials.
     function(cb) {
       rl.question("Enter your Stormpath API Key ID: ", function(id) {
         CONFIG.stormpath_api_key_id = id.trim();
@@ -76,18 +76,18 @@ function configure() {
         cb();
       });
     },
-
-    // Write the config file.
     function(cb) {
-      fs.writeFile(CONFIG_FILE, JSON.stringify(CONFIG), function(err) {
+      fs.writeFile(CONFIG_FILE, JSON.stringify(CONFIG, null, 2), function(err) {
         if (err) {
           console.log("ERROR: Can't write configuration file:", CONFIG_FILE);
-          process.exit(1);
+          cb(err);
         }
-        rl.close();
+        cb();
       });
-    }
-  ]);
+    },
+  ], function(err, results) {
+    rl.close();
+  });
 
 }
 
@@ -250,6 +250,5 @@ if (program.configure) {
     },
 
   ]);
-  rl.close();
 
 }
