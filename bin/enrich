@@ -1,0 +1,255 @@
+#!/usr/bin/env node
+
+
+var fs = require('fs');
+var path = require('path');
+var readline = require('readline');
+
+var async = require('async');
+var fullcontact = require('fullcontact');
+var mkdirp = require('mkdirp');
+var program = require('commander');
+var stormpath = require('stormpath');
+
+
+// Globals
+var VERSION = '0.0.1';
+var HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE': 'HOME'];
+var CONFIG_FILE = HOME + '/.stormpath/enrich/config.json';
+var CONFIG = {
+  stormpath_api_key_id: null,
+  stormpath_api_key_secret: null,
+  fullcontact_api_key : null,
+};
+var rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
+var fc;
+var spClient;
+
+
+// Initialize command line.
+program
+  .version(VERSION)
+  .option('-c, --configure', 'Configure enrich.', 'configure')
+  .parse(process.argv);
+
+
+/*
+ * Configure enrich by asking for / utilizing a user's Stormpath and FullContact
+ * credentials.
+ *
+ * This will store all configuration information in a JSON file inside
+ * ~/.stormpath/enrich/config.json
+ */
+function configure() {
+
+  // The ~/.enrich directory path (absolute).
+  var dir = HOME + '/.stormpath/enrich';
+
+  // Ensure the config directory exists.
+  mkdirp(dir, function(err, made) {
+    if (err) {
+      console.log("ERROR: Can't create configuration directory:", HOME + '/.stormpath/enrich');
+      process.exit(1);
+    }
+  });
+
+  async.series([
+    // Read credentials.
+    function(cb) {
+      rl.question("Enter your Stormpath API Key ID: ", function(id) {
+        CONFIG.stormpath_api_key_id = id.trim();
+        cb();
+      });
+    },
+    function(cb) {
+      rl.question("Enter your Stormpath API Key Secret: ", function(secret) {
+        CONFIG.stormpath_api_key_secret = secret.trim();
+        cb();
+      });
+    },
+    function(cb) {
+      rl.question("Enter your FullContact API Key: ", function(key) {
+        CONFIG.fullcontact_api_key = key.trim();
+        cb();
+      });
+    },
+
+    // Write the config file.
+    function(cb) {
+      fs.writeFile(CONFIG_FILE, JSON.stringify(CONFIG), function(err) {
+        if (err) {
+          console.log("ERROR: Can't write configuration file:", CONFIG_FILE);
+          process.exit(1);
+        }
+        rl.close();
+      });
+    }
+  ]);
+
+}
+
+
+/**
+ * Load configuration information from the ~/.stormpath/enrich.json file.  If no
+ * configuration information can be found, the errback will be called.
+ *
+ * @param {Function} callback The callback function to run after configuration
+ *   information has been loaded.  The signature of the callback function is
+ *   (err, config) where config is a JSON object of config data.
+ **/
+function load(next) {
+
+  fs.readFile(CONFIG_FILE, 'utf8', function(err, data) {
+    if (err) {
+      console.log("Uh oh, we couldn't find any configuration information. You need to configure stormpath-enrich to continue!");
+      configure();
+    }
+    data = JSON.parse(data);
+
+    CONFIG.stormpath_api_key_id = data.stormpath_api_key_id;
+    CONFIG.stormpath_api_key_secret = data.stormpath_api_key_secret;
+    CONFIG.fullcontact_api_key = data.fullcontact_api_key;
+
+    fc = new fullcontact(CONFIG.fullcontact_api_key);
+
+    var apiKey = new stormpath.ApiKey(CONFIG.stormpath_api_key_id, CONFIG.stormpath_api_key_secret);
+    spClient = new stormpath.Client({apiKey: apiKey});
+
+    next();
+  });
+
+}
+
+
+/**
+ * Grab a person's data using FullContact's API, given an email address.  If no
+ * information can be found, the errback will be called.
+ *
+ * @param {Function} callback The callback function to run after a user's data
+ *   has been retrieved.  The signature of the callback function is (err, data)
+ *   where data is a JSON object.
+ **/
+function grabData(email, next) {
+
+  fc.person.email(email, function(err, data) {
+    next(err, data);
+  });
+
+}
+
+
+/**
+ * Build an array of all Stormpath Directories, then return it.
+ *
+ * @param {Function} callback The callback function to run after all directories
+ *  have been retrieved.  The signature of the callback function is (err, data)
+ *  where data is an array of Directory objects.
+ **/
+function getDirectories(cb) {
+
+  var all_directories = [];
+
+  spClient.getDirectories(function(err, directories) {
+    directories.each(function(directory, cb) {
+      all_directories.push(directory);
+      cb();
+    }, function(err) {
+      if (err) throw err;
+      cb(null, all_directories);
+    });
+  });
+
+}
+
+
+/**
+ * Update all Stormpath Accounts with FullContact data, given an array of
+ * Stormpath Directories.
+ *
+ * @param {Function} callback The callback function to run after all accounts
+ *  have been updated.  The signature of the callback function is (err), where
+ *  err is an error.  If err is null, it means all updates completed
+ *  successfully.
+ **/
+function updateAccounts(directories, cb) {
+
+  // Iterate through directories.
+  for (var i = 0; i < directories.length; i++) {
+    directories[i].getAccounts(function(err, accounts) {
+
+      // Iterate through accounts.
+      accounts.each(function(account, c) {
+
+        async.waterfall([
+          // Use FullContact to retrieve information about this user.
+          function(x) {
+            grabData(account.email, x);
+          },
+
+          // Use the FullContact data to update this user's account.
+          function(data, x) {
+            if (data.contactInfo && data.contactInfo.givenName && data.contactInfo.familyName) {
+              account.givenName = data.contactInfo.givenName;
+              account.surname = data.contactInfo.familyName;
+              console.log('givenName:', account.givenName);
+              console.log('surname:', account.surname);
+              account.save(function(err) {console.log('done');});
+            }
+
+            x();
+          },
+        ]);
+
+        c();
+      }, function(err) {
+        if (err) {
+          cb(err);
+        }
+        cb();
+      });
+
+    });
+  }
+
+}
+
+
+// If we need to configure stuff, let's do it.
+if (program.configure) {
+  configure();
+} else {
+  async.waterfall([
+
+    // First, Load configuration details.
+    function(done) {
+      load(done);
+    },
+
+    // Second, iterate through all Stormpath Directories.
+    function(done) {
+      getDirectories(done);
+    },
+
+    // Third, iterate through all Stormpath Accounts.
+    function(directories, done) {
+
+      updateAccounts(directories, done);
+      //async.eachSeries(directories, function(directory, next_dir) {
+      //  directory.getAccounts(function(err, accounts) {
+      //    accounts.each(function(account, cb) {
+      //      console.log(account);
+      //      cb();
+      //    }, next_dir);
+      //  });
+      //}, function(err) {
+      //  conso
+      //};
+    },
+
+  ]);
+  rl.close();
+
+}
