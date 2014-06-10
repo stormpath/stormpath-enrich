@@ -5,25 +5,21 @@ var fs = require('fs');
 var path = require('path');
 var readline = require('readline');
 
+var FullContact = require('fullcontact');
 var async = require('async');
-var fullcontact = require('fullcontact');
 var mkdirp = require('mkdirp');
 var program = require('commander');
 var stormpath = require('stormpath');
 
 
 // Globals
+var FULLCONTACT_CLIENT;
+var STORMPATH_CLIENT;
 var VERSION = '0.0.1';
+
 var HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE': 'HOME'];
 var CONFIG_DIR = HOME + '/.stormpath/enrich';
 var CONFIG_FILE = CONFIG_DIR + '/config.json';
-var CONFIG = {
-  stormpath_api_key_id: null,
-  stormpath_api_key_secret: null,
-  fullcontact_api_key : null,
-};
-var fc;
-var spClient;
 
 
 // Initialize command line.
@@ -116,11 +112,6 @@ function load(callback) {
       callback(new Error("ERROR: Couldn't parse the configuration data. You need to configure stormpath-enrich to continue!"));
     }
 
-    fc = new fullcontact(config.fullcontact_api_key);
-
-    var apiKey = new stormpath.ApiKey(config.stormpath_api_key_id, config.stormpath_api_key_secret);
-    spClient = new stormpath.Client({apiKey: apiKey});
-
     callback(null, config);
   });
 
@@ -148,20 +139,22 @@ function grabData(email, next) {
  * Build an array of all Stormpath Directories, then return it.
  *
  * @param {Function} callback The callback function to run after all directories
- *  have been retrieved.  The signature of the callback function is (err, data)
- *  where data is an array of Directory objects.
+ *  have been retrieved.  The signature of the callback function is (err,
+ *  directories) where directories is an array of Directory objects.
  **/
-function getDirectories(cb) {
+function getDirectories(callback) {
 
   var all_directories = [];
 
-  spClient.getDirectories(function(err, directories) {
+  STORMPATH_CLIENT.getDirectories(function(err, directories) {
     directories.each(function(directory, cb) {
       all_directories.push(directory);
       cb();
     }, function(err) {
-      if (err) throw err;
-      cb(null, all_directories);
+      if (err) {
+        callback(new Error("Failed to retrieve list of directories from Stormpath."));
+      }
+      callback(null, all_directories);
     });
   });
 
@@ -220,26 +213,51 @@ function updateAccounts(directories, cb) {
 }
 
 
-// If we need to configure stuff, let's do it.
+/**
+ * Initialize all global API clients, given configuration data.
+ *
+ * @param {Json} config Configuration data.
+ * @param {Function} callback Callback to run once this function is done
+ *   executing.  This callback has the signature (err), where err is an error.
+ *   If err is null, everything succeeded.
+ **/
+function initializeClients(config, callback) {
+
+  var apiKey = new stormpath.ApiKey(
+    config.stormpath_api_key_id,
+    config.stormpath_api_key_secret
+  );
+
+  STORMPATH_CLIENT = new stormpath.Client({apiKey: apiKey});
+  FULLCONTACT_CLIENT = new FullContact(config.fullcontact_api_key);
+
+  callback();
+
+}
+
+
 if (program.configure) {
   configure();
 } else {
+
   async.waterfall([
 
     // First, Load configuration details.
-    function(done) {
-      load(done);
-    },
+    load,
+
+    // Next, initialize our API clients.
+    initializeClients,
 
     // Second, iterate through all Stormpath Directories.
-    function(done) {
-      getDirectories(done);
-    },
+    getDirectories,
 
     // Third, iterate through all Stormpath Accounts.
-    function(directories, done) {
+    function(directories, next) {
+      console.log(directories);
+      next();
 
-      updateAccounts(directories, done);
+      //updateAccounts(directories, next);
+      //
       //async.eachSeries(directories, function(directory, next_dir) {
       //  directory.getAccounts(function(err, accounts) {
       //    accounts.each(function(account, cb) {
@@ -252,6 +270,8 @@ if (program.configure) {
       //};
     },
 
-  ]);
+  ], function(err) {
+    if (err) throw err;
+  });
 
 }
