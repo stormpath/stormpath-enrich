@@ -300,15 +300,18 @@ function load(callback) {
 }
 
 
-// Program Start
-if (program.configure) {
-  configure();
-} else {
-
-  // If we get here it means the user wants to 'enrich' their Stormpath
-  // accounts, so let's do it!
-  async.waterfall([load, initializeClients, getDirectories, updateAccounts], function(err) {
-    if (err) throw err;
-  });
-
+/**
+ * Main function -- program starts here.
+ **/
+function main() {
+  if (program.configure) {
+    configure();
+  } else {
+    async.waterfall([load, initializeClients, getDirectories, updateAccounts], function(err) {
+      if (err) throw err;
+    });
+  }
 }
+
+
+main()
