@@ -237,44 +237,6 @@ function updateAccounts(directories, callback) {
     callback();
   });
 
-//  // Iterate through directories.
-//  for (var i = 0; i < directories.length; i++) {
-//    directories[i].getAccounts(function(err, accounts) {
-//
-//      // Iterate through accounts.
-//      accounts.each(function(account, c) {
-//
-//        async.waterfall([
-//          // Use FullContact to retrieve information about this user.
-//          function(x) {
-//            grabData(account.email, x);
-//          },
-//
-//          // Use the FullContact data to update this user's account.
-//          function(data, x) {
-//            if (data.contactInfo && data.contactInfo.givenName && data.contactInfo.familyName) {
-//              account.givenName = data.contactInfo.givenName;
-//              account.surname = data.contactInfo.familyName;
-//              console.log('givenName:', account.givenName);
-//              console.log('surname:', account.surname);
-//              account.save(function(err) {console.log('done');});
-//            }
-//
-//            x();
-//          },
-//        ]);
-//
-//        c();
-//      }, function(err) {
-//        if (err) {
-//          cb(err);
-//        }
-//        cb();
-//      });
-//
-//    });
-//  }
-
 }
 
 
