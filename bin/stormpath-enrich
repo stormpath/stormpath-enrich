@@ -30,8 +30,8 @@ program
 
 
 /**
- * Grab a person's data using FullContact's API, given an email address.  If no
- * information can be found, the callback will be called with an error.
+ * Grab a person's data using FullContact's API, given an email address.  If
+ * this fails for some reason, the callback will be called with an error.
  *
  * @param {Function} callback The callback function to run after a user's data
  *   has been retrieved.  The signature of the callback function is (err, data)
