@@ -29,66 +29,6 @@ program
   .parse(process.argv);
 
 
-/*
- * Configure enrich by asking for / utilizing a user's Stormpath and FullContact
- * credentials.
- *
- * This will store all configuration information in a JSON file inside
- * ~/.stormpath/enrich/config.json
- */
-function configure() {
-
-  var rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  // Grab the user's API keys for Stormpath and FullContact, then store them in
-  // the configuration file.
-  async.waterfall([
-    function(cb) {
-      mkdirp(CONFIG_DIR, function(err, made) {
-        if (err) {
-          cb(new Error("ERROR: Can't create configuration directory:", CONFIG_DIR));
-        }
-        cb();
-      });
-    },
-    function(cb) {
-      rl.question("Enter your Stormpath API Key ID: ", function(id) {
-        cb(null, id.trim());
-      });
-    },
-    function(id, cb) {
-      rl.question("Enter your Stormpath API Key Secret: ", function(secret) {
-        cb(null, id, secret.trim());
-      });
-    },
-    function(id, secret, cb) {
-      rl.question("Enter your FullContact API Key: ", function(key) {
-        cb(null, id, secret, key.trim());
-      });
-    },
-    function(id, secret, key, cb) {
-      fs.writeFile(CONFIG_FILE, JSON.stringify({
-          stormpath_api_key_id: id,
-          stormpath_api_key_secret: secret,
-          fullcontact_api_key: key,
-      }, null, 2), function(err) {
-        if (err) {
-          console.log("ERROR: Can't write configuration file:", CONFIG_FILE);
-          cb(err);
-        }
-        cb();
-      });
-    },
-  ], function(err) {
-    rl.close();
-  });
-
-}
-
-
 /**
  * Grab a person's data using FullContact's API, given an email address.  If no
  * information can be found, the callback will be called with an error.
@@ -101,32 +41,6 @@ function grabData(email, callback) {
 
   FULLCONTACT_CLIENT.person.email(email, function(err, data) {
     callback(err, data);
-  });
-
-}
-
-
-/**
- * Build an array of all Stormpath Directories, then return it.
- *
- * @param {Function} callback The callback function to run after all directories
- *  have been retrieved.  The signature of the callback function is (err,
- *  directories) where directories is an array of Directory objects.
- **/
-function getDirectories(callback) {
-
-  var all_directories = [];
-
-  STORMPATH_CLIENT.getDirectories(function(err, directories) {
-    directories.each(function(directory, cb) {
-      all_directories.push(directory);
-      cb();
-    }, function(err) {
-      if (err) {
-        callback(new Error("Failed to retrieve list of directories from Stormpath."));
-      }
-      callback(null, all_directories);
-    });
   });
 
 }
@@ -248,6 +162,32 @@ function updateAccounts(directories, callback) {
 
 
 /**
+ * Build an array of all Stormpath Directories, then return it.
+ *
+ * @param {Function} callback The callback function to run after all directories
+ *  have been retrieved.  The signature of the callback function is (err,
+ *  directories) where directories is an array of Directory objects.
+ **/
+function getDirectories(callback) {
+
+  var all_directories = [];
+
+  STORMPATH_CLIENT.getDirectories(function(err, directories) {
+    directories.each(function(directory, cb) {
+      all_directories.push(directory);
+      cb();
+    }, function(err) {
+      if (err) {
+        callback(new Error("Failed to retrieve list of directories from Stormpath."));
+      }
+      callback(null, all_directories);
+    });
+  });
+
+}
+
+
+/**
  * Initialize all global API clients, given configuration data.
  *
  * @param {Json} config Configuration data.
@@ -295,6 +235,66 @@ function load(callback) {
     }
 
     callback(null, config);
+  });
+
+}
+
+
+/*
+ * Configure enrich by asking for / utilizing a user's Stormpath and FullContact
+ * credentials.
+ *
+ * This will store all configuration information in a JSON file inside
+ * ~/.stormpath/enrich/config.json
+ */
+function configure() {
+
+  var rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  // Grab the user's API keys for Stormpath and FullContact, then store them in
+  // the configuration file.
+  async.waterfall([
+    function(cb) {
+      mkdirp(CONFIG_DIR, function(err, made) {
+        if (err) {
+          cb(new Error("ERROR: Can't create configuration directory:", CONFIG_DIR));
+        }
+        cb();
+      });
+    },
+    function(cb) {
+      rl.question("Enter your Stormpath API Key ID: ", function(id) {
+        cb(null, id.trim());
+      });
+    },
+    function(id, cb) {
+      rl.question("Enter your Stormpath API Key Secret: ", function(secret) {
+        cb(null, id, secret.trim());
+      });
+    },
+    function(id, secret, cb) {
+      rl.question("Enter your FullContact API Key: ", function(key) {
+        cb(null, id, secret, key.trim());
+      });
+    },
+    function(id, secret, key, cb) {
+      fs.writeFile(CONFIG_FILE, JSON.stringify({
+          stormpath_api_key_id: id,
+          stormpath_api_key_secret: secret,
+          fullcontact_api_key: key,
+      }, null, 2), function(err) {
+        if (err) {
+          console.log("ERROR: Can't write configuration file:", CONFIG_FILE);
+          cb(err);
+        }
+        cb();
+      });
+    },
+  ], function(err) {
+    rl.close();
   });
 
 }
