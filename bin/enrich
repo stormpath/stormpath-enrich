@@ -15,7 +15,8 @@ var stormpath = require('stormpath');
 // Globals
 var VERSION = '0.0.1';
 var HOME = process.env[(process.platform == 'win32') ? 'USERPROFILE': 'HOME'];
-var CONFIG_FILE = HOME + '/.stormpath/enrich/config.json';
+var CONFIG_DIR = HOME + '/.stormpath/enrich';
+var CONFIG_FILE = CONFIG_DIR + '/config.json';
 var CONFIG = {
   stormpath_api_key_id: null,
   stormpath_api_key_secret: null,
@@ -46,13 +47,10 @@ function configure() {
     output: process.stdout,
   });
 
-  // The ~/.enrich directory path (absolute).
-  var dir = HOME + '/.stormpath/enrich';
-
   // Ensure the config directory exists.
-  mkdirp(dir, function(err, made) {
+  mkdirp(CONFIG_DIR, function(err, made) {
     if (err) {
-      console.log("ERROR: Can't create configuration directory:", HOME + '/.stormpath/enrich');
+      console.log("ERROR: Can't create configuration directory:", CONFIG_DIR);
       process.exit(1);
     }
   });
@@ -95,32 +93,35 @@ function configure() {
 
 
 /**
- * Load configuration information from the ~/.stormpath/enrich.json file.  If no
- * configuration information can be found, the errback will be called.
+ * Load configuration information from the config file.  If no configuration
+ * information can be found, the callback will be called with an error argument.
  *
  * @param {Function} callback The callback function to run after configuration
  *   information has been loaded.  The signature of the callback function is
- *   (err, config) where config is a JSON object of config data.
+ *   (err, config), where err is an error, and config is JSON configuration
+ *   data.
  **/
-function load(next) {
+function load(callback) {
+
+  var config;
 
   fs.readFile(CONFIG_FILE, 'utf8', function(err, data) {
     if (err) {
-      console.log("Uh oh, we couldn't find any configuration information. You need to configure stormpath-enrich to continue!");
-      configure();
+      callback(new Error("ERROR: Couldn't open the configuration file. You need to configure stormpath-enrich to continue!"));
     }
-    data = JSON.parse(data);
 
-    CONFIG.stormpath_api_key_id = data.stormpath_api_key_id;
-    CONFIG.stormpath_api_key_secret = data.stormpath_api_key_secret;
-    CONFIG.fullcontact_api_key = data.fullcontact_api_key;
+    try {
+      config = JSON.parse(data);
+    } catch (e) {
+      callback(new Error("ERROR: Couldn't parse the configuration data. You need to configure stormpath-enrich to continue!"));
+    }
 
-    fc = new fullcontact(CONFIG.fullcontact_api_key);
+    fc = new fullcontact(config.fullcontact_api_key);
 
-    var apiKey = new stormpath.ApiKey(CONFIG.stormpath_api_key_id, CONFIG.stormpath_api_key_secret);
+    var apiKey = new stormpath.ApiKey(config.stormpath_api_key_id, config.stormpath_api_key_secret);
     spClient = new stormpath.Client({apiKey: apiKey});
 
-    next();
+    callback(null, config);
   });
 
 }
