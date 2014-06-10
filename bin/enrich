@@ -53,27 +53,28 @@ function configure() {
 
   // Grab the user's API keys for Stormpath and FullContact, then store them in
   // the configuration file.
-  async.series([
+  async.waterfall([
     function(cb) {
       rl.question("Enter your Stormpath API Key ID: ", function(id) {
-        CONFIG.stormpath_api_key_id = id.trim();
-        cb();
+        cb(null, id.trim());
       });
     },
-    function(cb) {
+    function(id, cb) {
       rl.question("Enter your Stormpath API Key Secret: ", function(secret) {
-        CONFIG.stormpath_api_key_secret = secret.trim();
-        cb();
+        cb(null, id, secret.trim());
       });
     },
-    function(cb) {
+    function(id, secret, cb) {
       rl.question("Enter your FullContact API Key: ", function(key) {
-        CONFIG.fullcontact_api_key = key.trim();
-        cb();
+        cb(null, id, secret, key.trim());
       });
     },
-    function(cb) {
-      fs.writeFile(CONFIG_FILE, JSON.stringify(CONFIG, null, 2), function(err) {
+    function(id, secret, key, cb) {
+      fs.writeFile(CONFIG_FILE, JSON.stringify({
+          stormpath_api_key_id: id,
+          stormpath_api_key_secret: secret,
+          fullcontact_api_key: key,
+      }, null, 2), function(err) {
         if (err) {
           console.log("ERROR: Can't write configuration file:", CONFIG_FILE);
           cb(err);
@@ -120,16 +121,16 @@ function load(callback) {
 
 /**
  * Grab a person's data using FullContact's API, given an email address.  If no
- * information can be found, the errback will be called.
+ * information can be found, the callback will be called with an error.
  *
  * @param {Function} callback The callback function to run after a user's data
  *   has been retrieved.  The signature of the callback function is (err, data)
  *   where data is a JSON object.
  **/
-function grabData(email, next) {
+function grabData(email, callback) {
 
-  fc.person.email(email, function(err, data) {
-    next(err, data);
+  FULLCONTACT_CLIENT.person.email(email, function(err, data) {
+    callback(err, data);
   });
 
 }
@@ -162,6 +163,65 @@ function getDirectories(callback) {
 
 
 /**
+ * Enrich an individual Stormpath account using FullContact data.
+ *
+ * @param {Object} account The Stormpath Account to update.
+ **/
+function processAccount(account) {
+
+  async.waterfall([
+
+    // Grab the user's data from FullContact.
+    function(callback) {
+      grabData(account.email, callback);
+    },
+
+    // Update the user's account.
+    function(data, callback) {
+      if (data.contactInfo) {
+        if (data.contactInfo.givenName) {
+          account.givenName = data.contactInfo.givenName;
+          console.log('Found account givenName:', account.email, account.givenName);
+        }
+        if (data.contactInfo.familyName) {
+          account.surname = data.contactInfo.familyName;
+          console.log('Found account surname:', account.email, account.surname);
+        }
+      }
+
+      account.save();
+      callback();
+    },
+
+  ]);
+
+}
+
+
+function processDirectory(directory, callback) {
+
+  // Get a list of all accounts in this directory.
+  directory.getAccounts(function(err, accounts) {
+    if (err) {
+      callback(new Error("Failed to retrieve Accounts list for Directory:", directory.name));
+    }
+
+    // Iterate through each account.
+    accounts.each(function(account, cb) {
+      processAccount(account);
+      cb();
+    }, function(err) {
+      if (err) {
+        callback(new Error("Failed to update Accounts for Directory:", directory.name));
+      }
+      callback();
+    });
+  });
+
+}
+
+
+/**
  * Update all Stormpath Accounts with FullContact data, given an array of
  * Stormpath Directories.
  *
@@ -170,45 +230,50 @@ function getDirectories(callback) {
  *  err is an error.  If err is null, it means all updates completed
  *  successfully.
  **/
-function updateAccounts(directories, cb) {
+function updateAccounts(directories, callback) {
 
-  // Iterate through directories.
-  for (var i = 0; i < directories.length; i++) {
-    directories[i].getAccounts(function(err, accounts) {
+  // Process each directory in series (as a form of rate limiting).
+  async.eachSeries(directories, processDirectory, function(err) {
+    callback();
+  });
 
-      // Iterate through accounts.
-      accounts.each(function(account, c) {
-
-        async.waterfall([
-          // Use FullContact to retrieve information about this user.
-          function(x) {
-            grabData(account.email, x);
-          },
-
-          // Use the FullContact data to update this user's account.
-          function(data, x) {
-            if (data.contactInfo && data.contactInfo.givenName && data.contactInfo.familyName) {
-              account.givenName = data.contactInfo.givenName;
-              account.surname = data.contactInfo.familyName;
-              console.log('givenName:', account.givenName);
-              console.log('surname:', account.surname);
-              account.save(function(err) {console.log('done');});
-            }
-
-            x();
-          },
-        ]);
-
-        c();
-      }, function(err) {
-        if (err) {
-          cb(err);
-        }
-        cb();
-      });
-
-    });
-  }
+//  // Iterate through directories.
+//  for (var i = 0; i < directories.length; i++) {
+//    directories[i].getAccounts(function(err, accounts) {
+//
+//      // Iterate through accounts.
+//      accounts.each(function(account, c) {
+//
+//        async.waterfall([
+//          // Use FullContact to retrieve information about this user.
+//          function(x) {
+//            grabData(account.email, x);
+//          },
+//
+//          // Use the FullContact data to update this user's account.
+//          function(data, x) {
+//            if (data.contactInfo && data.contactInfo.givenName && data.contactInfo.familyName) {
+//              account.givenName = data.contactInfo.givenName;
+//              account.surname = data.contactInfo.familyName;
+//              console.log('givenName:', account.givenName);
+//              console.log('surname:', account.surname);
+//              account.save(function(err) {console.log('done');});
+//            }
+//
+//            x();
+//          },
+//        ]);
+//
+//        c();
+//      }, function(err) {
+//        if (err) {
+//          cb(err);
+//        }
+//        cb();
+//      });
+//
+//    });
+//  }
 
 }
 
@@ -252,23 +317,7 @@ if (program.configure) {
     getDirectories,
 
     // Third, iterate through all Stormpath Accounts.
-    function(directories, next) {
-      console.log(directories);
-      next();
-
-      //updateAccounts(directories, next);
-      //
-      //async.eachSeries(directories, function(directory, next_dir) {
-      //  directory.getAccounts(function(err, accounts) {
-      //    accounts.each(function(account, cb) {
-      //      console.log(account);
-      //      cb();
-      //    }, next_dir);
-      //  });
-      //}, function(err) {
-      //  conso
-      //};
-    },
+    updateAccounts,
 
   ], function(err) {
     if (err) throw err;
