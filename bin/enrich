@@ -169,6 +169,8 @@ function getDirectories(callback) {
  **/
 function processAccount(account) {
 
+  console.log('Fetching updates for account:', account.email);
+
   async.waterfall([
 
     // Grab the user's data from FullContact.
@@ -177,20 +179,47 @@ function processAccount(account) {
     },
 
     // Update the user's account.
-    function(data, callback) {
-      if (data.contactInfo) {
-        if (data.contactInfo.givenName) {
-          account.givenName = data.contactInfo.givenName;
-          console.log('Found account givenName:', account.email, account.givenName);
+    function(fcData, callback) {
+
+      // First, we'll manually set the user's givenName and surname if
+      // available.
+      if (fcData.contactInfo) {
+        if (fcData.contactInfo.givenName) {
+          account.givenName = fcData.contactInfo.givenName;
         }
-        if (data.contactInfo.familyName) {
-          account.surname = data.contactInfo.familyName;
-          console.log('Found account surname:', account.email, account.surname);
+        if (fcData.contactInfo.familyName) {
+          account.surname = fcData.contactInfo.familyName;
         }
       }
 
-      account.save();
-      callback();
+      // Save the basic account data.
+      account.save(function(err) {
+
+        // Now, we'll update the user's customData with whatever else
+        // FullContact has on this user.
+        account.customData.get(function(err, data) {
+          if (err) callback();
+
+          if (fcData.photos) {
+            data.photos = fcData.photos;
+          }
+          if (fcData.contactInfo) {
+            data.contactInfo = fcData.contactInfo;
+          }
+          if (fcData.organizations) {
+            data.organizations = fcData.organizations;
+          }
+          if (fcData.demographics) {
+            data.demographics = fcData.demographics;
+          }
+          if (fcData.socialProfiles) {
+            data.socialProfiles = fcData.socialProfiles;
+          }
+          data.save(callback);
+        });
+
+      });
+
     },
 
   ]);
