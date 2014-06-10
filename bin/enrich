@@ -198,6 +198,14 @@ function processAccount(account) {
 }
 
 
+/**
+ * Iterate through all accounts in a given directory, and process each account.
+ *
+ * @param {Json} directory The Stormpath directory object to process.
+ * @param {Function} callback The callback to run once this directory has been
+ *   fully processed.  This callback has the signature (err), where err is an
+ *   error.  If err is null, the processing finished successfully.
+ **/
 function processDirectory(directory, callback) {
 
   // Get a list of all accounts in this directory.
