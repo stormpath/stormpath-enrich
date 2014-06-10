@@ -90,36 +90,6 @@ function configure() {
 
 
 /**
- * Load configuration information from the config file.  If no configuration
- * information can be found, the callback will be called with an error argument.
- *
- * @param {Function} callback The callback function to run after configuration
- *   information has been loaded.  The signature of the callback function is
- *   (err, config), where err is an error, and config is JSON configuration
- *   data.
- **/
-function load(callback) {
-
-  var config;
-
-  fs.readFile(CONFIG_FILE, 'utf8', function(err, data) {
-    if (err) {
-      callback(new Error("ERROR: Couldn't open the configuration file. You need to configure stormpath-enrich to continue!"));
-    }
-
-    try {
-      config = JSON.parse(data);
-    } catch (e) {
-      callback(new Error("ERROR: Couldn't parse the configuration data. You need to configure stormpath-enrich to continue!"));
-    }
-
-    callback(null, config);
-  });
-
-}
-
-
-/**
  * Grab a person's data using FullContact's API, given an email address.  If no
  * information can be found, the callback will be called with an error.
  *
@@ -296,6 +266,36 @@ function initializeClients(config, callback) {
   FULLCONTACT_CLIENT = new FullContact(config.fullcontact_api_key);
 
   callback();
+
+}
+
+
+/**
+ * Load configuration information from the config file.  If no configuration
+ * information can be found, the callback will be called with an error argument.
+ *
+ * @param {Function} callback The callback function to run after configuration
+ *   information has been loaded.  The signature of the callback function is
+ *   (err, config), where err is an error, and config is JSON configuration
+ *   data.
+ **/
+function load(callback) {
+
+  var config;
+
+  fs.readFile(CONFIG_FILE, 'utf8', function(err, data) {
+    if (err) {
+      callback(new Error("ERROR: Couldn't open the configuration file. You need to configure stormpath-enrich to continue!"));
+    }
+
+    try {
+      config = JSON.parse(data);
+    } catch (e) {
+      callback(new Error("ERROR: Couldn't parse the configuration data. You need to configure stormpath-enrich to continue!"));
+    }
+
+    callback(null, config);
+  });
 
 }
 
