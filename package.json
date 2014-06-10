@@ -1,0 +1,35 @@
+{
+  "name": "stormpath-enrich",
+  "version": "0.0.0",
+  "description": "Enrich your Stormpath User accounts, instantly!",
+  "main": "bin/stormpath-enrich",
+  "dependencies": {
+    "async": "~0.9.0",
+    "commander": "~2.2.0",
+    "fullcontact": "0.0.2",
+    "mkdirp": "~0.5.0",
+    "stormpath": "~0.1.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/rdegges/stormpath-enrich.git"
+  },
+  "keywords": [
+    "stormpath",
+    "accounts",
+    "authentication",
+    "fullcontact",
+    "enrich",
+    "data"
+  ],
+  "author": "Randall Degges",
+  "license": "UNLICENSE",
+  "bugs": {
+    "url": "https://github.com/rdegges/stormpath-enrich/issues"
+  },
+  "homepage": "https://github.com/rdegges/stormpath-enrich"
+}
