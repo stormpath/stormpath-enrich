@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "description": "Enrich your Stormpath User accounts, instantly!",
   "main": "bin/stormpath-enrich",
+  "bin": {
+    "express-generator": "./bin/stormpath-enrich"
+  },
   "dependencies": {
     "async": "~0.9.0",
     "commander": "~2.2.0",
