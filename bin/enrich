@@ -57,6 +57,8 @@ function configure() {
     }
   });
 
+  // Grab the user's API keys for Stormpath and FullContact, then store them in
+  // the configuration file.
   async.series([
     function(cb) {
       rl.question("Enter your Stormpath API Key ID: ", function(id) {
