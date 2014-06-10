@@ -146,6 +146,7 @@ function processDirectory(directory, callback) {
  * Update all Stormpath Accounts with FullContact data, given an array of
  * Stormpath Directories.
  *
+ * @param {Array} directories An array of Stormpath Directory objects.
  * @param {Function} callback The callback function to run after all accounts
  *  have been updated.  The signature of the callback function is (err), where
  *  err is an error.  If err is null, it means all updates completed
