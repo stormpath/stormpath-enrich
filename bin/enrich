@@ -300,25 +300,14 @@ function initializeClients(config, callback) {
 }
 
 
+// Program Start
 if (program.configure) {
   configure();
 } else {
 
-  async.waterfall([
-
-    // First, Load configuration details.
-    load,
-
-    // Next, initialize our API clients.
-    initializeClients,
-
-    // Second, iterate through all Stormpath Directories.
-    getDirectories,
-
-    // Third, iterate through all Stormpath Accounts.
-    updateAccounts,
-
-  ], function(err) {
+  // If we get here it means the user wants to 'enrich' their Stormpath
+  // accounts, so let's do it!
+  async.waterfall([load, initializeClients, getDirectories, updateAccounts], function(err) {
     if (err) throw err;
   });
 
