@@ -75,138 +75,146 @@ information!
 
 **contactInfo**
 ```json
-"contactInfo": {
-    "familyName": "Lorang",
-    "givenName": "Bart",
-    "fullName": "Bart Lorang",
-    "websites": [
-        {
-            "url": "http://fullcontact.com"
-        },
-        {
-            "url": "http://www.flickr.com/people/39267654@N00/"
-        },
-        {
-            "url": "http://picasaweb.google.com/lorangb"
-        }
-    ],
-    "chats": {
-        "gtalk": [
+{
+    "contactInfo": {
+        "familyName": "Lorang",
+        "givenName": "Bart",
+        "fullName": "Bart Lorang",
+        "websites": [
             {
-                "handle": "lorangb@gmail.com"
+                "url": "http://fullcontact.com"
+            },
+            {
+                "url": "http://www.flickr.com/people/39267654@N00/"
+            },
+            {
+                "url": "http://picasaweb.google.com/lorangb"
             }
         ],
-        "skype": [
-            {
-                "handle": "bart.lorang"
-            }
-        ]
+        "chats": {
+            "gtalk": [
+                {
+                    "handle": "lorangb@gmail.com"
+                }
+            ],
+            "skype": [
+                {
+                    "handle": "bart.lorang"
+                }
+            ]
+        }
     }
-},
+}
 ```
 
 **organizations**
 ```json
-"organizations": [
-    {
-        "name": "FullContact",
-        "title": "Co-Founder & CEO",
-        "isPrimary": true
-    }
-],
+{
+    "organizations": [
+        {
+            "name": "FullContact",
+            "title": "Co-Founder & CEO",
+            "isPrimary": true
+        }
+    ]
+}
 ```
 
 **demographics**
 ```json
-"demographics": {
-    "age": "33",
-    "locationGeneral": "Boulder, Colorado",
-    "gender": "Male",
-    "ageRange": "25-34"
-},
+{
+    "demographics": {
+        "age": "33",
+        "locationGeneral": "Boulder, Colorado",
+        "gender": "Male",
+        "ageRange": "25-34"
+    }
+}
 ```
 
 **socialProfiles**
 ```json
-"socialProfiles": {
-    "aboutme": [
-        {
-            "typeName": "About.me",
-            "username": "lorangb",
-            "url": "http://about.me/lorangb"
-        }
-    ],
-    "twitter": [
-        {
-            "typeName": "Twitter",
-            "username": "bartlorang",
-            "url": "http://twitter.com/bartlorang"
-        }
-    ],
-    "quora": [
-        {
-            "typeName": "Quora",
-            "username": "bart-lorang",
-            "url": "http://quora.com/bart-lorang"
-        }
-    ],
-    "linkedin": [
-        {
-            "typeName": "LinkedIn",
-            "username": "bartlorang",
-            "url": "http://linkedin.com/in/bartlorang"
-        }
-    ],
-    "facebook": [
-        {
-            "typeName": "Facebook",
-            "username": "bartlorang",
-            "url": "http://facebook.com/bartlorang"
-        }
-    ],
-    "klout": [
-        {
-            "typeName": "Klout",
-            "username": "lorangb",
-            "url": "http://klout.com/#/lorangb"
-        }
-    ],
-    "youtube": [
-        {
-            "typeName": "YouTube",
-            "username": "lorangb",
-            "url": "http://youtube.com/user/lorangb"
-        }
-    ],
-    "myspace": [
-        {
-            "typeName": "MySpace",
-            "userid": "137200880",
-            "url": "http://myspace.com/137200880"
-        }
-    ],
-    "foursquare": [
-        {
-            "typeName": "FourSquare",
-            "username": "bartlorang",
-            "url": "http://foursquare.com/bartlorang"
-        }
-    ],
-    "googleprofile": [
-        {
-            "typeName": "Google Profile",
-            "userid": "114426306375480734745",
-            "url": "http://profiles.google.com/114426306375480734745"
-        }
-    ],
-    "googleplus": [
-        {
-            "typeName": "Google Plus",
-            "userid": "114426306375480734745",
-            "url": "http://plus.google.com/114426306375480734745"
-        }
-    ]
-},
+{
+    "socialProfiles": {
+        "aboutme": [
+            {
+                "typeName": "About.me",
+                "username": "lorangb",
+                "url": "http://about.me/lorangb"
+            }
+        ],
+        "twitter": [
+            {
+                "typeName": "Twitter",
+                "username": "bartlorang",
+                "url": "http://twitter.com/bartlorang"
+            }
+        ],
+        "quora": [
+            {
+                "typeName": "Quora",
+                "username": "bart-lorang",
+                "url": "http://quora.com/bart-lorang"
+            }
+        ],
+        "linkedin": [
+            {
+                "typeName": "LinkedIn",
+                "username": "bartlorang",
+                "url": "http://linkedin.com/in/bartlorang"
+            }
+        ],
+        "facebook": [
+            {
+                "typeName": "Facebook",
+                "username": "bartlorang",
+                "url": "http://facebook.com/bartlorang"
+            }
+        ],
+        "klout": [
+            {
+                "typeName": "Klout",
+                "username": "lorangb",
+                "url": "http://klout.com/#/lorangb"
+            }
+        ],
+        "youtube": [
+            {
+                "typeName": "YouTube",
+                "username": "lorangb",
+                "url": "http://youtube.com/user/lorangb"
+            }
+        ],
+        "myspace": [
+            {
+                "typeName": "MySpace",
+                "userid": "137200880",
+                "url": "http://myspace.com/137200880"
+            }
+        ],
+        "foursquare": [
+            {
+                "typeName": "FourSquare",
+                "username": "bartlorang",
+                "url": "http://foursquare.com/bartlorang"
+            }
+        ],
+        "googleprofile": [
+            {
+                "typeName": "Google Profile",
+                "userid": "114426306375480734745",
+                "url": "http://profiles.google.com/114426306375480734745"
+            }
+        ],
+        "googleplus": [
+            {
+                "typeName": "Google Plus",
+                "userid": "114426306375480734745",
+                "url": "http://plus.google.com/114426306375480734745"
+            }
+        ]
+    }
+}
 ```
 
 This is useful because in many cases, it is convenient to register new user
