@@ -175,7 +175,9 @@ function getDirectories(callback) {
 
   STORMPATH_CLIENT.getDirectories(function(err, directories) {
     if (err) {
-      callback(new Error("Failed to retrieve Directory list:", err));
+      console.log('Failed to retrieve Directory list.');
+      console.log(err);
+      process.exit(1);
     }
 
     directories.each(function(directory, cb) {
