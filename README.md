@@ -33,42 +33,44 @@ information!
 
 **photos**
 ```json
-"photos": {
-    "twitter": [
-        {
-            "url": "https://d2ojpxxtu63wzl.cloudfront.net/static/ecf57683e2c22abb296f822377597290_fe346265298c3d008a4af9c54483809f55508dd4c238789dc9a115ae8395c381",
-            "typeName": "Twitter",
-            "isPrimary": false
-        }
-    ],
-    "facebook": [
-        {
-            "url": "https://d2ojpxxtu63wzl.cloudfront.net/static/cf9e151530e386f6d86450206fd1345a_ea1f4c9ffb6856596b3df04b6b797de722f79a9781ba29bf172c52136f576557",
-            "typeName": "Facebook",
-            "isPrimary": true
-        }
-    ],
-    "quora": [
-        {
-            "url": "https://d2ojpxxtu63wzl.cloudfront.net/image/8aeb64288905cbc9e73678eab24032d4_260589322c246c2e8aef934f234b4fc0c33a437e247dc80f6f9b909d2a2ba990",
-            "typeName": "Quora"
-        }
-    ],
-    "foursquare": [
-        {
-            "url": "https://d2ojpxxtu63wzl.cloudfront.net/static/ac4cac11df61b43c503d4c3101604742_80a63ae50b5cc0e8f9dacb522547d923f1b3961ca666fd661fb2b3f5656a644d",
-            "typeName": "Foursquare",
-            "isPrimary": false
-        }
-    ],
-    "googleplus": [
-        {
-            "url": "https://d2ojpxxtu63wzl.cloudfront.net/static/a508fc51b2d287175f36a44aead7438a_6be07253a0bbaf5929d148cc2fca7f266ffd41a1053862e2f3016594a134602d",
-            "typeName": "Google Plus",
-            "isPrimary": false
-        }
-    ]
-},
+{
+    "photos": {
+        "twitter": [
+            {
+                "url": "https://d2ojpxxtu63wzl.cloudfront.net/static/ecf57683e2c22abb296f822377597290_fe346265298c3d008a4af9c54483809f55508dd4c238789dc9a115ae8395c381",
+                "typeName": "Twitter",
+                "isPrimary": false
+            }
+        ],
+        "facebook": [
+            {
+                "url": "https://d2ojpxxtu63wzl.cloudfront.net/static/cf9e151530e386f6d86450206fd1345a_ea1f4c9ffb6856596b3df04b6b797de722f79a9781ba29bf172c52136f576557",
+                "typeName": "Facebook",
+                "isPrimary": true
+            }
+        ],
+        "quora": [
+            {
+                "url": "https://d2ojpxxtu63wzl.cloudfront.net/image/8aeb64288905cbc9e73678eab24032d4_260589322c246c2e8aef934f234b4fc0c33a437e247dc80f6f9b909d2a2ba990",
+                "typeName": "Quora"
+            }
+        ],
+        "foursquare": [
+            {
+                "url": "https://d2ojpxxtu63wzl.cloudfront.net/static/ac4cac11df61b43c503d4c3101604742_80a63ae50b5cc0e8f9dacb522547d923f1b3961ca666fd661fb2b3f5656a644d",
+                "typeName": "Foursquare",
+                "isPrimary": false
+            }
+        ],
+        "googleplus": [
+            {
+                "url": "https://d2ojpxxtu63wzl.cloudfront.net/static/a508fc51b2d287175f36a44aead7438a_6be07253a0bbaf5929d148cc2fca7f266ffd41a1053862e2f3016594a134602d",
+                "typeName": "Google Plus",
+                "isPrimary": false
+            }
+        ]
+    }
+}
 ```
 
 **contactInfo**
