@@ -219,7 +219,7 @@ function initializeClients(config, callback) {
  *   information has been loaded.  The signature of the callback function is
  *   (err, config), where err is an error, and config is JSON configuration
  *   data.
- **/
+ */
 function load(callback) {
 
   var config;
