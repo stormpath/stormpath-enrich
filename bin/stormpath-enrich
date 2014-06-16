@@ -302,7 +302,7 @@ function configure() {
 
 
 /**
- * Main function -- program starts here.
+ * Program starts here!
  **/
 function main() {
   if (program.configure) {
