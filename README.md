@@ -228,7 +228,7 @@ standardized giving you more power and insight over your user base.
 
 # Install
 
-You can install `stormpath-enrich` through [npm][https://www.npmjs.org/] by
+You can install `stormpath-enrich` through [npm][] by
 running:
 
 ```console
@@ -285,3 +285,4 @@ directory of users!
   [FullContact]: http://www.fullcontact.com/ "FullContact"
   [here]: https://api.stormpath.com/register "Create a Stormpath Account"
   [over here]: https://www.fullcontact.com/developer/try-fullcontact/ "Create a FullContact Developer Account"
+  [npm]: https://www.npmjs.org/ "npm"
