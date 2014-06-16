@@ -241,7 +241,7 @@ function load(callback) {
 }
 
 
-/*
+/**
  * Configure enrich by asking for / utilizing a user's Stormpath and FullContact
  * credentials.
  *
